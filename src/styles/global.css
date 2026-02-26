@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme {
+  --font-pixel: "Press Start 2P", monospace;
+  --font-mono: "Space Mono", monospace;
+
+  --color-arena-bg: #111827;
+  --color-arena-dark: #1a2332;
+  --color-arena-panel: #1e2a3a;
+  --color-arena-border: #2d3f55;
+  --color-arena-accent: #6c5ce7;
+  --color-arena-gold: #fbbf24;
+  --color-arena-red: #ef4444;
+  --color-arena-green: #22c55e;
+  --color-arena-blue: #3b82f6;
+
+  --color-tile-grass: #5da84a;
+  --color-tile-grass-alt: #6ab854;
+  --color-tile-water: #4a9ede;
+  --color-tile-tree: #3a8a4a;
+  --color-tile-rock: #8899a6;
+  --color-tile-bush: #4caf50;
+  --color-tile-lava: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--color-arena-bg);
+  color: #e0e0e0;
+  font-family: var(--font-mono);
+}
+
+/* Lock scrolling only on arena */
+.arena-lock {
+  height: 100vh;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-arena-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-arena-accent);
+}
+
+.pixel-render {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(108, 92, 231, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(108, 92, 231, 0.6); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes zone-pulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.35; }
+}
+
+@keyframes bobble {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
