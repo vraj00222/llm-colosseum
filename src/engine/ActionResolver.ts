@@ -1,5 +1,5 @@
 import { ActionType, Player, Tile, GameEvent, Broadcast, Direction, ItemDrop, Projectile } from './types';
-import { MAP_SIZE, getZoneDamage } from './MapGenerator';
+import { MAP_SIZE, getZoneDamage, isInSafeZone } from './MapGenerator';
 
 const DIRECTIONS: Record<Direction, { dx: number; dy: number }> = {
   north: { dx: 0, dy: -1 },
@@ -8,15 +8,127 @@ const DIRECTIONS: Record<Direction, { dx: number; dy: number }> = {
   west: { dx: -1, dy: 0 },
 };
 
-export function parseAction(raw: string, player: Player, allPlayers: Player[]): ActionType {
+const ALL_DIRS: Direction[] = ['north', 'south', 'east', 'west'];
+const CENTER = Math.floor(MAP_SIZE / 2);
+
+// ─── SMART AGGRESSIVE FALLBACK AI ───
+// When LLM fails or returns garbage, this AI takes over.
+// It hunts, it kills, it never stands still.
+function getAggressiveAction(player: Player, allPlayers: Player[], map: Tile[][], itemDrops: ItemDrop[], zoneRadius: number): ActionType {
+  const enemies = allPlayers.filter(p => p.alive && p.id !== player.id);
+  if (enemies.length === 0) return { type: 'REST' };
+
+  // 1) Adjacent enemy? ATTACK immediately (Among Us style - kill when near!)
+  const adjacent = enemies.filter(e => isAdjacent(player.position, e.position));
+  if (adjacent.length > 0) {
+    // Target lowest HP enemy for the kill
+    adjacent.sort((a, b) => a.hp - b.hp);
+    return { type: 'ATTACK', target: adjacent[0].nickname };
+  }
+
+  // 2) Have a bow + enemy in line of sight? SHOOT
+  if (player.inventory.includes('bow')) {
+    for (const dir of ALL_DIRS) {
+      const d = DIRECTIONS[dir];
+      let pos = { ...player.position };
+      for (let i = 0; i < 4; i++) {
+        pos = { x: pos.x + d.dx, y: pos.y + d.dy };
+        if (pos.x < 0 || pos.x >= MAP_SIZE || pos.y < 0 || pos.y >= MAP_SIZE) break;
+        const tile = map[pos.y]?.[pos.x];
+        if (tile?.type === 'rock' || tile?.type === 'tree') break;
+        if (enemies.some(e => e.position.x === pos.x && e.position.y === pos.y)) {
+          return { type: 'SHOOT', direction: dir };
+        }
+      }
+    }
+  }
+
+  // 3) Have a bomb + enemies within 3 tiles? USE it
+  if (player.inventory.includes('bomb')) {
+    const nearby = enemies.filter(e => withinRange(player.position, e.position, 3));
+    if (nearby.length > 0) return { type: 'USE', item: 'bomb' };
+  }
+
+  // 4) Low HP + have potion? Heal
+  if (player.hp <= 40 && player.inventory.includes('potion')) {
+    return { type: 'USE', item: 'potion' };
+  }
+
+  // 5) Item nearby? Go get it
+  const nearItems = itemDrops.filter(i => withinRange(player.position, i.position, 2));
+  if (nearItems.length > 0 && player.inventory.length < 4) {
+    const item = nearItems[0];
+    const dir = directionToward(player.position, item.position, map);
+    if (dir) return { type: 'MOVE', direction: dir };
+  }
+
+  // 6) Outside zone? Run toward center
+  if (!isInSafeZone(player.position, zoneRadius)) {
+    const dir = directionToward(player.position, { x: CENTER, y: CENTER }, map);
+    if (dir) return { type: 'MOVE', direction: dir };
+  }
+
+  // 7) HUNT — move toward nearest enemy (the core behavior)
+  enemies.sort((a, b) => dist(player.position, a.position) - dist(player.position, b.position));
+  const target = enemies[0];
+  const dir = directionToward(player.position, target.position, map);
+  if (dir) return { type: 'MOVE', direction: dir };
+
+  // 8) Random valid move as last resort
+  return getRandomMove(player, map);
+}
+
+function directionToward(from: { x: number; y: number }, to: { x: number; y: number }, map: Tile[][]): Direction | null {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+
+  // Prefer the axis with larger distance
+  const candidates: Direction[] = [];
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    if (dx > 0) candidates.push('east', dy > 0 ? 'south' : 'north');
+    else if (dx < 0) candidates.push('west', dy > 0 ? 'south' : 'north');
+    else candidates.push(dy > 0 ? 'south' : 'north');
+  } else {
+    if (dy > 0) candidates.push('south', dx > 0 ? 'east' : 'west');
+    else if (dy < 0) candidates.push('north', dx > 0 ? 'east' : 'west');
+    else candidates.push(dx > 0 ? 'east' : 'west');
+  }
+
+  for (const dir of candidates) {
+    const d = DIRECTIONS[dir];
+    const nx = from.x + d.dx, ny = from.y + d.dy;
+    if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny]?.[nx]?.type !== 'water') {
+      return dir;
+    }
+  }
+  return null;
+}
+
+function getRandomMove(player: Player, map: Tile[][]): ActionType {
+  const ok = ALL_DIRS.filter(d => {
+    const { dx, dy } = DIRECTIONS[d];
+    const nx = player.position.x + dx, ny = player.position.y + dy;
+    return nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny]?.[nx]?.type !== 'water';
+  });
+  if (ok.length === 0) return { type: 'REST' };
+  return { type: 'MOVE', direction: ok[Math.floor(Math.random() * ok.length)] };
+}
+
+// ─── PARSING ───
+export function parseAction(raw: string, player: Player, allPlayers: Player[], map: Tile[][], itemDrops: ItemDrop[], zoneRadius: number): ActionType {
+  if (!raw || raw.trim().length === 0) {
+    return getAggressiveAction(player, allPlayers, map, itemDrops, zoneRadius);
+  }
+
   const cleaned = raw.trim().replace(/^```.*\n?/g, '').replace(/```$/g, '').replace(/\*\*/g, '').trim();
   const lines = cleaned.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   let line = lines[0] || '';
 
-  const actionKeywords = ['MOVE', 'ATTACK', 'SHOOT', 'GATHER', 'CRAFT', 'USE', 'REST', 'SPEAK', 'ALLY', 'BETRAY'];
+  const actionKeywords = ['MOVE', 'ATTACK', 'SHOOT', 'GATHER', 'CRAFT', 'USE', 'REST', 'SPEAK', 'ALLY', 'BETRAY', 'KILL'];
   if (!actionKeywords.some(k => line.toUpperCase().startsWith(k))) {
     const found = lines.find(l => actionKeywords.some(k => l.toUpperCase().startsWith(k)));
     if (found) line = found;
+    else return getAggressiveAction(player, allPlayers, map, itemDrops, zoneRadius);
   }
 
   const parts = line.split(/\s+/);
@@ -26,17 +138,21 @@ export function parseAction(raw: string, player: Player, allPlayers: Player[]): 
   switch (command) {
     case 'MOVE': {
       const dir = parts[1]?.toLowerCase() as Direction;
-      if (['north', 'south', 'east', 'west'].includes(dir)) return { type: 'MOVE', direction: dir };
+      if (ALL_DIRS.includes(dir)) return { type: 'MOVE', direction: dir };
       break;
     }
+    case 'KILL':
     case 'ATTACK': {
       const target = findTarget(parts.slice(1).join(' '), aliveNicknames);
       if (target) return { type: 'ATTACK', target };
+      // If they said ATTACK but bad target, attack nearest
+      const adj = allPlayers.filter(p => p.alive && p.id !== player.id && isAdjacent(player.position, p.position));
+      if (adj.length > 0) return { type: 'ATTACK', target: adj[0].nickname };
       break;
     }
     case 'SHOOT': {
       const dir = parts[1]?.toLowerCase() as Direction;
-      if (['north', 'south', 'east', 'west'].includes(dir)) return { type: 'SHOOT', direction: dir };
+      if (ALL_DIRS.includes(dir)) return { type: 'SHOOT', direction: dir };
       break;
     }
     case 'GATHER': return { type: 'GATHER' };
@@ -67,7 +183,7 @@ export function parseAction(raw: string, player: Player, allPlayers: Player[]): 
       break;
     }
   }
-  return getRandomAction(player);
+  return getAggressiveAction(player, allPlayers, map, itemDrops, zoneRadius);
 }
 
 function findTarget(raw: string, valid: string[]): string | null {
@@ -78,22 +194,16 @@ function findTarget(raw: string, valid: string[]): string | null {
     || null;
 }
 
-function getRandomAction(player: Player): ActionType {
-  const dirs: Direction[] = ['north', 'south', 'east', 'west'];
-  const ok = dirs.filter(d => {
-    const { dx, dy } = DIRECTIONS[d];
-    const nx = player.position.x + dx, ny = player.position.y + dy;
-    return nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE;
-  });
-  return { type: 'MOVE', direction: ok[Math.floor(Math.random() * ok.length)] };
+function dist(a: { x: number; y: number }, b: { x: number; y: number }): number {
+  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
 function isAdjacent(a: { x: number; y: number }, b: { x: number; y: number }): boolean {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y) === 1;
+  return dist(a, b) === 1;
 }
 
 function withinRange(a: { x: number; y: number }, b: { x: number; y: number }, range: number): boolean {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y) <= range;
+  return dist(a, b) <= range;
 }
 
 export interface ResolvedActions {
@@ -134,7 +244,7 @@ export function resolveActions(
   const get = (id: string) => updated.find(p => p.id === id)!;
   const byNick = (n: string) => updated.find(p => p.nickname === n && p.alive);
 
-  // Phase 1: SPEAK
+  // ═══ Phase 1: SPEAK ═══
   for (const [pid, action] of actions) {
     const p = get(pid);
     if (!p.alive || p.stunned || action.type !== 'SPEAK') continue;
@@ -144,7 +254,7 @@ export function resolveActions(
       playerColor: p.color, playerEmoji: p.emoji, message: action.message, timestamp: ts });
   }
 
-  // Phase 2: ALLY / BETRAY
+  // ═══ Phase 2: ALLY / BETRAY ═══
   for (const [pid, action] of actions) {
     const p = get(pid);
     if (!p.alive || p.stunned) continue;
@@ -157,10 +267,10 @@ export function resolveActions(
         if (ta?.type === 'ALLY' && findTarget((ta as any).target, [p.nickname])) {
           if (!t.alliances.includes(p.nickname)) t.alliances.push(p.nickname);
           events.push({ round, playerId: pid, playerNickname: p.nickname,
-            description: `\u{1F91D} ${p.nickname} and ${t.nickname} formed an alliance!`, type: 'ally', timestamp: ts });
+            description: `\u{1F91D} ${p.nickname} and ${t.nickname} allied!`, type: 'ally', timestamp: ts });
         } else {
           events.push({ round, playerId: pid, playerNickname: p.nickname,
-            description: `${p.emoji} ${p.nickname} proposes alliance with ${t.nickname}`, type: 'ally', timestamp: ts });
+            description: `${p.emoji} ${p.nickname} wants to ally ${t.nickname}`, type: 'ally', timestamp: ts });
         }
         p.lastAction = `ALLY ${t.nickname}`;
       }
@@ -171,7 +281,7 @@ export function resolveActions(
       if (t && withinRange(p.position, t.position, 3)) {
         p.alliances = p.alliances.filter(a => a !== t.nickname);
         t.alliances = t.alliances.filter(a => a !== p.nickname);
-        let dmg = 35;
+        let dmg = 40; // Betrayals hit HARD
         if (t.shield) { dmg = Math.floor(dmg * 0.4); t.shield = false; }
         t.hp = Math.max(0, t.hp - dmg);
         p.lastAction = `BETRAY ${t.nickname}`;
@@ -187,7 +297,7 @@ export function resolveActions(
     }
   }
 
-  // Phase 3: MOVE + auto-pickup items
+  // ═══ Phase 3: MOVE + auto-pickup ═══
   const moveIntents = new Map<string, { x: number; y: number }>();
   for (const [pid, action] of actions) {
     const p = get(pid);
@@ -220,14 +330,31 @@ export function resolveActions(
     if (ii !== -1 && p.inventory.length < 5) {
       const item = drops[ii];
       p.inventory.push(item.type);
-      drops = drops.filter((_, i) => i !== ii);
+      drops = drops.filter((_, idx) => idx !== ii);
       if (item.type === 'shield') p.shield = true;
       events.push({ round, playerId: pid, playerNickname: p.nickname,
         description: `${p.emoji} ${p.nickname} picked up ${item.type}!`, type: 'item', timestamp: ts });
     }
   }
 
-  // Phase 4: GATHER / CRAFT / REST / USE
+  // ═══ AMONG US MECHANIC: Proximity auto-clash ═══
+  // If two non-allied players end up adjacent after moves, they auto-clash (small damage both ways)
+  for (const p of updated) {
+    if (!p.alive) continue;
+    for (const t of updated) {
+      if (!t.alive || t.id === p.id || t.id < p.id) continue; // avoid double-processing
+      if (!isAdjacent(p.position, t.position)) continue;
+      if (p.alliances.includes(t.nickname)) continue;
+      // Clash! Both take minor damage
+      const clashDmg = 5 + Math.floor(Math.random() * 5);
+      p.hp = Math.max(0, p.hp - clashDmg);
+      t.hp = Math.max(0, t.hp - clashDmg);
+      events.push({ round, playerId: p.id, playerNickname: p.nickname,
+        description: `\u{26A1} ${p.nickname} and ${t.nickname} clash! (${clashDmg} dmg each)`, type: 'attack', timestamp: ts });
+    }
+  }
+
+  // ═══ Phase 4: GATHER / CRAFT / REST / USE ═══
   for (const [pid, action] of actions) {
     const p = get(pid);
     if (!p.alive || p.stunned) continue;
@@ -260,17 +387,17 @@ export function resolveActions(
         inv.push(action.item);
         p.lastAction = `CRAFT ${action.item}`;
         events.push({ round, playerId: pid, playerNickname: p.nickname,
-          description: `${recipe[1]} ${p.nickname} crafted a ${action.item}!`, type: 'craft', timestamp: ts });
+          description: `${recipe[1]} ${p.nickname} crafted ${action.item}!`, type: 'craft', timestamp: ts });
       }
     }
 
     if (action.type === 'USE') {
       if (action.item === 'potion' && p.inventory.includes('potion')) {
         removeItems(p.inventory, ['potion']);
-        p.hp = Math.min(p.maxHp, p.hp + 35);
+        p.hp = Math.min(p.maxHp, p.hp + 30);
         p.lastAction = 'USE potion';
         events.push({ round, playerId: pid, playerNickname: p.nickname,
-          description: `\u{2764}\u{FE0F} ${p.nickname} drank a potion! (+35 HP)`, type: 'use', timestamp: ts });
+          description: `\u{2764}\u{FE0F} ${p.nickname} drank a potion! (+30 HP)`, type: 'use', timestamp: ts });
       }
       if (action.item === 'bomb' && p.inventory.includes('bomb')) {
         removeItems(p.inventory, ['bomb']);
@@ -278,7 +405,7 @@ export function resolveActions(
         for (const t of updated) {
           if (!t.alive || t.id === pid) continue;
           if (withinRange(p.position, t.position, 2)) {
-            let dmg = 22;
+            let dmg = 28; // Bombs hit harder
             if (t.shield) { dmg = Math.floor(dmg * 0.4); t.shield = false; }
             t.hp = Math.max(0, t.hp - dmg);
             t.stunned = true;
@@ -292,25 +419,25 @@ export function resolveActions(
     if (action.type === 'REST') {
       const enemy = updated.some(t => t.alive && t.id !== pid && !p.alliances.includes(t.nickname) && isAdjacent(p.position, t.position));
       if (!enemy) {
-        p.hp = Math.min(p.maxHp, p.hp + 10);
+        p.hp = Math.min(p.maxHp, p.hp + 8);
         p.lastAction = 'REST';
         events.push({ round, playerId: pid, playerNickname: p.nickname,
-          description: `\u{1F4A4} ${p.nickname} rested (+10 HP)`, type: 'rest', timestamp: ts });
+          description: `\u{1F4A4} ${p.nickname} rested (+8 HP)`, type: 'rest', timestamp: ts });
       }
     }
   }
 
-  // Phase 5: SHOOT
+  // ═══ Phase 5: SHOOT ═══
   for (const [pid, action] of actions) {
     const p = get(pid);
     if (!p.alive || p.stunned || action.type !== 'SHOOT') continue;
     if (!p.inventory.includes('bow')) { p.lastAction = 'SHOOT (no bow!)'; continue; }
     p.facing = action.direction;
     const d = DIRECTIONS[action.direction];
-    let baseDmg = 18 + (p.inventory.includes('sword') ? 5 : 0);
+    let baseDmg = 22 + (p.inventory.includes('sword') ? 5 : 0); // Arrows hit harder
     let hit = false;
     let pos = { ...p.position };
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) { // 5-tile range now
       pos = { x: pos.x + d.dx, y: pos.y + d.dy };
       if (pos.x < 0 || pos.x >= MAP_SIZE || pos.y < 0 || pos.y >= MAP_SIZE) break;
       const tile = map[pos.y][pos.x];
@@ -331,14 +458,14 @@ export function resolveActions(
     if (!hit) p.lastAction = `SHOOT ${action.direction} (missed)`;
   }
 
-  // Phase 6: ATTACK (melee)
+  // ═══ Phase 6: ATTACK (melee) — Among Us kill ═══
   for (const [pid, action] of actions) {
     const p = get(pid);
     if (!p.alive || p.stunned || action.type !== 'ATTACK') continue;
     const t = byNick(action.target);
     if (!t || !isAdjacent(p.position, t.position)) { p.lastAction = `ATTACK (missed)`; continue; }
-    let dmg = 18 + Math.floor(Math.random() * 10);
-    if (p.inventory.includes('sword')) dmg += 12;
+    let dmg = 22 + Math.floor(Math.random() * 12); // Higher base damage
+    if (p.inventory.includes('sword')) dmg += 15; // Sword bonus bigger
     if (p.alliances.includes(t.nickname)) dmg = Math.floor(dmg * 0.5);
     if (t.shield) { dmg = Math.floor(dmg * 0.4); t.shield = false; }
     t.hp = Math.max(0, t.hp - dmg);
@@ -347,7 +474,7 @@ export function resolveActions(
       description: `\u{2694}\u{FE0F} ${p.nickname} attacked ${t.nickname} for ${dmg} damage!`, type: 'attack', timestamp: ts });
   }
 
-  // Phase 7: Zone damage
+  // ═══ Phase 7: Zone damage — MORE PUNISHING ═══
   for (const p of updated) {
     if (!p.alive) continue;
     const dmg = getZoneDamage(p.position, zoneRadius);
@@ -358,7 +485,7 @@ export function resolveActions(
     }
   }
 
-  // Phase 8: Eliminations
+  // ═══ Phase 8: Eliminations ═══
   for (const p of updated) {
     if (p.hp <= 0 && p.alive) {
       p.alive = false;

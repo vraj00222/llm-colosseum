@@ -5,14 +5,14 @@ import { parseAction, resolveActions } from './ActionResolver';
 import { callModelWithRetry } from '../services/novitaApi';
 import { PLAYER_CONFIGS } from '../data/players';
 
-const INITIAL_ZONE_RADIUS = 7; // full map
-const ZONE_SHRINK_INTERVAL = 4; // shrink every N rounds
-const MIN_ZONE_RADIUS = 2;
+const INITIAL_ZONE_RADIUS = 7;
+const ZONE_SHRINK_INTERVAL = 3; // Shrink every 3 rounds (was 4)
+const MIN_ZONE_RADIUS = 1; // Zone gets TINY (was 2)
 
 export function initializeGame(): GameState {
   const map = generateMap();
   const spawnPositions = spawnPlayers(map, PLAYER_CONFIGS.length);
-  const itemDrops = generateItemDrops(map, 8); // Start with 8 item drops
+  const itemDrops = generateItemDrops(map, 10); // More items at start
 
   const players: Player[] = PLAYER_CONFIGS.map((config, i) => ({
     ...config,
@@ -59,20 +59,21 @@ export async function executeRound(
     return { ...state, round: newRound, phase: 'finished', winner: alivePlayers[0] || null };
   }
 
-  // Shrink zone every N rounds
+  // Shrink zone faster
   let newZoneRadius = state.zoneRadius;
   if (newRound > 1 && newRound % ZONE_SHRINK_INTERVAL === 0 && newZoneRadius > MIN_ZONE_RADIUS) {
     newZoneRadius--;
   }
 
-  // Spawn new items occasionally
+  // Spawn items every 2 rounds (was 3)
   let newDrops = [...state.itemDrops];
-  if (newRound % 3 === 0) {
-    const extraItems = generateItemDrops(state.map, 2);
+  if (newRound % 2 === 0) {
+    const extraItems = generateItemDrops(state.map, 3);
     newDrops = [...newDrops, ...extraItems];
   }
 
-  // Get actions from all alive players concurrently
+  // Get actions from all alive players concurrently with a race timeout
+  // If any model is too slow, fallback AI kicks in immediately
   const actionPromises = alivePlayers.map(async (player) => {
     if (player.stunned) {
       onPlayerAction?.(player.id, '(stunned)');
@@ -89,8 +90,9 @@ export async function executeRound(
       rawAction = await callModelWithRetry(player.model, system, user, apiKey);
     } catch { rawAction = ''; }
 
-    const parsed = parseAction(rawAction, player, state.players);
-    onPlayerAction?.(player.id, rawAction || '(no response)');
+    // parseAction now gets full context for smart fallback
+    const parsed = parseAction(rawAction, player, state.players, state.map, newDrops, newZoneRadius);
+    onPlayerAction?.(player.id, rawAction || '(AI fallback)');
     return { playerId: player.id, action: parsed, raw: rawAction };
   });
 
@@ -111,19 +113,59 @@ export async function executeRound(
   if (newRound > 1 && newRound % ZONE_SHRINK_INTERVAL === 0 && state.zoneRadius > MIN_ZONE_RADIUS) {
     newEvents.unshift({
       round: newRound, playerId: 'system', playerNickname: 'System',
-      description: `\u{26A0}\u{FE0F} DANGER ZONE SHRINKING! Safe radius now ${newZoneRadius}. Get to the center!`,
+      description: `\u{26A0}\u{FE0F} ZONE SHRINKING! Radius now ${newZoneRadius}!`,
       type: 'zone', timestamp: Date.now(),
     });
   }
 
+  // Passive damage for camping — if someone didn't move or attack for this round, they take chip damage
+  // This prevents boring stalemates
+  for (const p of resolved.players) {
+    if (!p.alive) continue;
+    const action = actionMap.get(p.id);
+    if (action?.type === 'REST' || action?.type === 'GATHER') {
+      // Campers take 3 damage
+      p.hp = Math.max(0, p.hp - 3);
+      if (newRound > 8) {
+        // Late game campers take more
+        p.hp = Math.max(0, p.hp - 5);
+        newEvents.push({
+          round: newRound, playerId: p.id, playerNickname: p.nickname,
+          description: `\u{23F0} ${p.nickname} is camping! Arena punishes idlers! (-5 HP)`,
+          type: 'system', timestamp: Date.now(),
+        });
+      }
+    }
+  }
+
+  // Re-check eliminations after camping penalty
+  for (const p of resolved.players) {
+    if (p.hp <= 0 && p.alive) {
+      p.alive = false;
+      p.eliminatedRound = newRound;
+      if (!p.eliminatedBy) p.eliminatedBy = 'the arena';
+      if (!resolved.eliminations.find(e => e.id === p.id)) {
+        resolved.eliminations.push({ ...p });
+        newEvents.push({
+          round: newRound, playerId: p.id, playerNickname: p.nickname,
+          description: `\u{1F480} ${p.nickname} eliminated! (by ${p.eliminatedBy})`,
+          type: 'elimination', timestamp: Date.now(),
+        });
+      }
+    }
+  }
+
+  const finalAlive = resolved.players.filter(p => p.alive);
+  const finalFinished = finalAlive.length <= 1;
+
   return {
     ...state,
     round: newRound,
-    phase: isFinished ? 'finished' : 'playing',
+    phase: (isFinished || finalFinished) ? 'finished' : 'playing',
     players: resolved.players,
     events: [...state.events, ...newEvents],
     broadcasts: [...state.broadcasts, ...resolved.broadcasts],
-    winner: isFinished ? (stillAlive[0] || null) : null,
+    winner: (isFinished || finalFinished) ? (finalAlive[0] || null) : null,
     eliminationOrder: [...state.eliminationOrder, ...resolved.eliminations],
     itemDrops: resolved.itemDrops,
     projectiles: resolved.projectiles,

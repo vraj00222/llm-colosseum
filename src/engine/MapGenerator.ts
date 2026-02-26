@@ -127,11 +127,11 @@ export function isInSafeZone(pos: Position, zoneRadius: number): boolean {
   return Math.max(Math.abs(dx), Math.abs(dy)) <= zoneRadius;
 }
 
-// Get zone damage for being outside
+// Get zone damage for being outside — PUNISHING
 export function getZoneDamage(pos: Position, zoneRadius: number): number {
   if (isInSafeZone(pos, zoneRadius)) return 0;
   const dx = Math.abs(pos.x - CENTER);
   const dy = Math.abs(pos.y - CENTER);
   const dist = Math.max(dx, dy) - zoneRadius;
-  return Math.min(dist * 5, 15); // 5-15 damage per round outside zone
+  return Math.min(dist * 8, 25); // 8-25 damage per round outside zone — get moving!
 }

@@ -2,10 +2,10 @@ import { motion } from 'framer-motion';
 import { useGame } from '../../hooks/useGame';
 
 const speeds = [
-  { value: 0.5, label: '0.5x' },
   { value: 1, label: '1x' },
   { value: 2, label: '2x' },
   { value: 3, label: '3x' },
+  { value: 5, label: '5x' },
 ];
 
 export default function SpeedControl() {

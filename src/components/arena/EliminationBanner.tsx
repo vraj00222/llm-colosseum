@@ -15,29 +15,29 @@ export default function EliminationBanner({ player, onDismiss }: EliminationBann
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onAnimationComplete={() => setTimeout(onDismiss, 1800)}
+          onAnimationComplete={() => setTimeout(onDismiss, 800)}
         >
           <motion.div
-            className="absolute inset-0 bg-red-900/50"
-            initial={{ opacity: 0.7 }}
+            className="absolute inset-0 bg-red-900/40"
+            initial={{ opacity: 0.6 }}
             animate={{ opacity: 0 }}
-            transition={{ duration: 1.2 }}
+            transition={{ duration: 0.6 }}
           />
           <motion.div
             className="text-center"
-            initial={{ scale: 3, opacity: 0 }}
+            initial={{ scale: 2.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.5, opacity: 0, y: -30 }}
-            transition={{ type: 'spring', stiffness: 250, damping: 18 }}
+            exit={{ scale: 0.5, opacity: 0, y: -20 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           >
             <motion.span
-              className="text-5xl block mb-2"
+              className="text-4xl block mb-1"
               animate={{ rotate: [0, -10, 10, -10, 0] }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.3 }}
             >
               {'\u{1F480}'}
             </motion.span>
-            <h2 className="font-pixel text-lg text-red-500 mb-1">ELIMINATED</h2>
+            <h2 className="font-pixel text-base text-red-500 mb-0.5">ELIMINATED</h2>
             <p className="font-pixel text-sm" style={{ color: player.color }}>
               {player.emoji} {player.nickname}
             </p>

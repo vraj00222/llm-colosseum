@@ -49,7 +49,8 @@ export default function Arena() {
 
   useEffect(() => {
     if (!isRunning || phase !== 'playing') return;
-    const delay = showElim ? 2200 : (800 / speed);
+    // Fast! 400ms base at 1x, brief pause on elim
+    const delay = showElim ? 1200 : (400 / speed);
     loopRef.current = setTimeout(() => { tick(); }, delay);
     return () => { if (loopRef.current) clearTimeout(loopRef.current); };
   }, [isRunning, phase, speed, round, tick, showElim]);
