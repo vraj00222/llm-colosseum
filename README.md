@@ -1,73 +1,73 @@
-# React + TypeScript + Vite
+# LLM Colosseum
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Battle of Large Language Models in a Roguelike Arena**
 
-Currently, two official plugins are available:
+## Overview
+LLM Colosseum is a technical showcase and experimental game where multiple Large Language Models (LLMs) compete in a procedurally generated, turn-based roguelike arena. Each LLM controls a fighter, making decisions via API calls, with the goal of being the last model standing. The project demonstrates advanced prompt engineering, real-time API orchestration, and a modular game engine built with modern web technologies.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Arena Engine:** 15x15 procedurally generated tile map (grass, water, tree, rock, bush).
+- **LLM Fighters:** Each player is an LLM (DeepSeek V3.2, Qwen 3.5 397B, Kimi K2.5, GLM-5, MiniMax M2.5, Qwen3 Coder 480B).
+- **Turn System:** All models submit actions simultaneously; engine resolves in 6-phase order (move, interact, combat, etc).
+- **Resource System:** Gather/craft resources (wood, stone, berries, water, sword, potion).
+- **Alliances:** Dynamic alliance lines, betrayal, and elimination.
+- **API Orchestration:** Per-turn prompt construction, timeout/retry/fallback, concurrent requests, post-game interviews.
+- **UI/UX:**
+  - Animated 15x15 grid with framer-motion.
+  - Player status cards (HP, inventory, alive/dead).
+  - Live event log, broadcast panel, elimination banners.
+  - Speed control (0.5x, 1x, 2x), round counter, results page.
+- **State Management:** Zustand store for global game state.
+- **Landing Page:** Hero, rules, fighter showcase, API key input.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Technical Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, Framer Motion
+- **State:** Zustand
+- **Routing:** React Router
+- **API:** Novita AI (LLM orchestration)
+- **Build:** Vite
+- **Testing:** Manual (see PLAN.md)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Architecture
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **src/engine/**: Core game logic (map generation, action resolution, prompt building, types)
+- **src/components/**: UI components (arena, HUD, landing, results)
+- **src/services/novitaApi.ts**: API layer for LLM calls (with timeout, retry, fallback)
+- **src/hooks/useGame.ts**: Zustand-powered game state hook
+- **src/data/players.ts**: LLM player definitions
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Game Flow
+1. **Landing:** User enters API key, reviews rules, selects models.
+2. **Arena:** LLMs receive prompts, submit actions, engine resolves turn, UI animates results.
+3. **Results:** Champion crowned, standings shown, post-game interviews with LLMs.
+
+---
+
+## Security & Best Practices
+- `.gitignore` excludes API keys, .env, and sensitive files (see .gitignore).
+- No API keys or secrets are committed.
+- All LLM API calls are client-side and require user-supplied keys.
+
+---
+
+## Development
+- See PLAN.md for detailed architecture, phases, and decisions log.
+- To run locally:
+  1. `npm install`
+  2. `npm run dev`
+- Requires a Novita AI API key (not included).
+
+---
+
+## License
+MIT (see LICENSE)
