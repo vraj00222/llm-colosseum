@@ -18,15 +18,20 @@ function getAggressiveAction(player: Player, allPlayers: Player[], map: Tile[][]
   const enemies = allPlayers.filter(p => p.alive && p.id !== player.id);
   if (enemies.length === 0) return { type: 'REST' };
 
-  // 1) Adjacent enemy? ATTACK immediately (Among Us style - kill when near!)
+  // 1) OUTSIDE ZONE? Run toward center FIRST — survival is #1 priority
+  if (!isInSafeZone(player.position, zoneRadius)) {
+    const dir = directionToward(player.position, { x: CENTER, y: CENTER }, map);
+    if (dir) return { type: 'MOVE', direction: dir };
+  }
+
+  // 2) Adjacent enemy? ATTACK immediately (Among Us style - kill when near!)
   const adjacent = enemies.filter(e => isAdjacent(player.position, e.position));
   if (adjacent.length > 0) {
-    // Target lowest HP enemy for the kill
     adjacent.sort((a, b) => a.hp - b.hp);
     return { type: 'ATTACK', target: adjacent[0].nickname };
   }
 
-  // 2) Have a bow + enemy in line of sight? SHOOT
+  // 3) Have a bow + enemy in line of sight? SHOOT
   if (player.inventory.includes('bow')) {
     for (const dir of ALL_DIRS) {
       const d = DIRECTIONS[dir];
@@ -43,28 +48,22 @@ function getAggressiveAction(player: Player, allPlayers: Player[], map: Tile[][]
     }
   }
 
-  // 3) Have a bomb + enemies within 3 tiles? USE it
+  // 4) Have a bomb + enemies within 3 tiles? USE it
   if (player.inventory.includes('bomb')) {
     const nearby = enemies.filter(e => withinRange(player.position, e.position, 3));
     if (nearby.length > 0) return { type: 'USE', item: 'bomb' };
   }
 
-  // 4) Low HP + have potion? Heal
+  // 5) Low HP + have potion? Heal
   if (player.hp <= 40 && player.inventory.includes('potion')) {
     return { type: 'USE', item: 'potion' };
   }
 
-  // 5) Item nearby? Go get it
+  // 6) Item nearby? Go get it
   const nearItems = itemDrops.filter(i => withinRange(player.position, i.position, 2));
   if (nearItems.length > 0 && player.inventory.length < 4) {
     const item = nearItems[0];
     const dir = directionToward(player.position, item.position, map);
-    if (dir) return { type: 'MOVE', direction: dir };
-  }
-
-  // 6) Outside zone? Run toward center
-  if (!isInSafeZone(player.position, zoneRadius)) {
-    const dir = directionToward(player.position, { x: CENTER, y: CENTER }, map);
     if (dir) return { type: 'MOVE', direction: dir };
   }
 
@@ -137,9 +136,21 @@ export function parseAction(raw: string, player: Player, allPlayers: Player[], m
 
   switch (command) {
     case 'MOVE': {
-      const dir = parts[1]?.toLowerCase() as Direction;
-      if (ALL_DIRS.includes(dir)) return { type: 'MOVE', direction: dir };
-      break;
+      let dir = parts[1]?.toLowerCase() as Direction;
+      if (!ALL_DIRS.includes(dir)) break;
+      // If outside zone and this move goes further away, override toward center
+      if (!isInSafeZone(player.position, zoneRadius)) {
+        const d = DIRECTIONS[dir];
+        const nx = player.position.x + d.dx, ny = player.position.y + d.dy;
+        const curDist = Math.max(Math.abs(player.position.x - CENTER), Math.abs(player.position.y - CENTER));
+        const newDist = Math.max(Math.abs(nx - CENTER), Math.abs(ny - CENTER));
+        if (newDist > curDist) {
+          // LLM is moving the wrong way — redirect toward center
+          const betterDir = directionToward(player.position, { x: CENTER, y: CENTER }, map);
+          if (betterDir) dir = betterDir;
+        }
+      }
+      return { type: 'MOVE', direction: dir };
     }
     case 'KILL':
     case 'ATTACK': {

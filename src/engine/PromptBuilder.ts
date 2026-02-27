@@ -51,10 +51,16 @@ export function buildPrompt(
     .map(b => `${b.playerNickname}: "${b.message}"`)
     .join('\n') || '';
 
-  // Zone urgency
+  // Zone urgency — give EXACT direction to run
   let urgency = '';
   if (!inZone) {
-    urgency = `\n!! YOU ARE IN THE DEATH ZONE! Move toward center (${center},${center}) NOW or DIE! !!`;
+    const dirs: string[] = [];
+    if (player.position.x < center - zoneRadius) dirs.push('east');
+    if (player.position.x > center + zoneRadius) dirs.push('west');
+    if (player.position.y < center - zoneRadius) dirs.push('south');
+    if (player.position.y > center + zoneRadius) dirs.push('north');
+    const moveDir = dirs[0] || (player.position.x < center ? 'east' : 'west');
+    urgency = `\n!! DEATH ZONE! You take massive damage EVERY ROUND here! MOVE ${moveDir.toUpperCase()} immediately to survive! DO: MOVE ${moveDir} !!`;
   } else if (zoneRadius <= 3) {
     urgency = '\n!! ZONE IS TINY! FIGHT OR DIE! Everyone is close — ATTACK! !!';
   } else if (zoneRadius <= 5) {
@@ -68,14 +74,16 @@ export function buildPrompt(
     : 'Early game. Gear up fast, then FIGHT.';
 
   const system = `You are ${player.nickname} in a battle royale. ${player.description}
-RULES: Kill others to survive. Adjacent = ATTACK. Have bow = SHOOT. Talk trash with SPEAK.
-You MUST act every turn. Never do nothing. Be aggressive, dramatic, entertaining.
+RULES:
+- ZONE: Safe area is ${zoneRadius} tiles from center (${center},${center}). If outside, you LOSE 8-25 HP/round. ALWAYS move inside the zone first!
+- Adjacent enemy = ATTACK <name>. Have bow = SHOOT n/s/e/w. Kill to survive.
+- Be aggressive, dramatic, entertaining. Talk trash with SPEAK.
 Respond with EXACTLY ONE action line. Nothing else.`;
 
   const user = `R${round} | ${alive.length + 1} left | Zone:${zoneRadius} | ${panicNote}${urgency}
 
-YOU: ${player.nickname} HP:${player.hp} at (${player.position.x},${player.position.y})
-Items: [${player.inventory.join(',') || 'none'}] Allies: [${player.alliances.join(',') || 'none'}]
+YOU: ${player.nickname} HP:${player.hp} at (${player.position.x},${player.position.y}) ${inZone ? 'SAFE' : 'OUTSIDE ZONE - MOVE IN!'}
+Items: [${player.inventory.join(',') || 'none'}] Allies: [${player.alliances.join(',') || 'none'}]${player.lastAction ? `\nLast turn: ${player.lastAction}` : ''}
 
 NEARBY:
 ${playerLines}${nearItems.length ? '\nITEMS: ' + nearItems.join(', ') : ''}${recentEvents ? '\nEVENTS:\n' + recentEvents : ''}${recentChat ? '\nCHAT:\n' + recentChat : ''}

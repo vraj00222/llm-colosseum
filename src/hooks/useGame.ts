@@ -72,8 +72,10 @@ export const useGame = create<GameStore>((set, get) => ({
     const newElims = newState.eliminationOrder.slice(state.eliminationOrder.length);
     const latestElim = newElims.length > 0 ? newElims[newElims.length - 1] : null;
 
+    const currentSpeed = get().speed;
     set({
       ...newState,
+      speed: currentSpeed,
       isRunning: newState.phase === 'playing',
       latestElimination: latestElim,
       rawActions,

@@ -262,11 +262,11 @@ function TileComponent({ type, size, x, y, inDangerZone }: TileProps) {
         </div>
       )}
 
-      {/* Danger zone overlay */}
+      {/* Danger zone — dark fog with subtle red tint */}
       {inDangerZone && (
         <div className="absolute inset-0" style={{
-          background: 'rgba(200, 40, 40, 0.18)',
-          animation: 'zone-pulse 2s ease-in-out infinite',
+          background: 'rgba(10, 5, 5, 0.5)',
+          boxShadow: 'inset 0 0 6px rgba(180, 30, 30, 0.25)',
         }} />
       )}
     </div>

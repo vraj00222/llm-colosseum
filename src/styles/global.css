@@ -89,3 +89,8 @@ html, body, #root {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+
+@keyframes zone-border-pulse {
+  0%, 100% { border-color: rgba(100, 200, 255, 0.5); box-shadow: 0 0 12px rgba(100, 200, 255, 0.3), inset 0 0 12px rgba(100, 200, 255, 0.08); }
+  50% { border-color: rgba(100, 200, 255, 0.8); box-shadow: 0 0 20px rgba(100, 200, 255, 0.5), inset 0 0 20px rgba(100, 200, 255, 0.12); }
+}
