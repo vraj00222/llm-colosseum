@@ -262,11 +262,11 @@ function TileComponent({ type, size, x, y, inDangerZone }: TileProps) {
         </div>
       )}
 
-      {/* Danger zone — dark fog with subtle red tint */}
+      {/* Danger zone — dark red-black hue */}
       {inDangerZone && (
         <div className="absolute inset-0" style={{
-          background: 'rgba(10, 5, 5, 0.5)',
-          boxShadow: 'inset 0 0 6px rgba(180, 30, 30, 0.25)',
+          background: 'linear-gradient(135deg, rgba(30, 5, 5, 0.65), rgba(60, 10, 10, 0.55))',
+          boxShadow: 'inset 0 0 10px rgba(150, 20, 20, 0.4)',
         }} />
       )}
     </div>

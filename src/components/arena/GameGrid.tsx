@@ -113,20 +113,25 @@ export default function GameGrid() {
       ))}
 
       {/* Zone boundary — glowing safe zone border with pulse */}
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          left: (MAP_SIZE / 2 - zoneRadius) * TILE_SIZE,
-          top: (MAP_SIZE / 2 - zoneRadius) * TILE_SIZE,
-          width: zoneRadius * 2 * TILE_SIZE + TILE_SIZE,
-          height: zoneRadius * 2 * TILE_SIZE + TILE_SIZE,
-          border: '2px solid rgba(100, 200, 255, 0.5)',
-          borderRadius: 4,
-          zIndex: 30,
-          boxShadow: '0 0 12px rgba(100, 200, 255, 0.3), inset 0 0 12px rgba(100, 200, 255, 0.08)',
-          animation: 'zone-border-pulse 3s ease-in-out infinite',
-        }}
-      />
+      {(() => {
+        const center = Math.floor(MAP_SIZE / 2);
+        const left = (center - zoneRadius) * TILE_SIZE;
+        const top = (center - zoneRadius) * TILE_SIZE;
+        const size = (zoneRadius * 2 + 1) * TILE_SIZE;
+        return (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              left, top, width: size, height: size,
+              border: '2px solid rgba(100, 200, 255, 0.5)',
+              borderRadius: 4,
+              zIndex: 30,
+              boxShadow: '0 0 12px rgba(100, 200, 255, 0.3), inset 0 0 12px rgba(100, 200, 255, 0.08)',
+              animation: 'zone-border-pulse 3s ease-in-out infinite',
+            }}
+          />
+        );
+      })()}
     </div>
   );
 }
