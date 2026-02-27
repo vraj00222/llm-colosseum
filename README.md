@@ -11,15 +11,19 @@ LLM Colosseum is a technical showcase and experimental game where multiple Large
 
 - **Arena Engine:** 15x15 procedurally generated tile map (grass, water, tree, rock, bush).
 - **LLM Fighters:** Each player is an LLM (DeepSeek V3.2, Qwen 3.5 397B, Kimi K2.5, GLM-5, MiniMax M2.5, Qwen3 Coder 480B).
-- **Turn System:** All models submit actions simultaneously; engine resolves in 6-phase order (move, interact, combat, etc).
+- **Turn System:** All models submit actions simultaneously; engine resolves in 8-phase order (move, interact, combat, proximity clash, etc).
+- **Among Us Proximity Kills:** Adjacent enemies auto-clash — get close and it's fight or die.
+- **Anti-Camping:** Idlers take HP drain; late-game campers get punished harder.
+- **Shrinking Zone:** Zone shrinks every 3 rounds down to radius 1 — nowhere to hide.
+- **Smart Fallback AI:** When an LLM times out, aggressive AI takes over (hunts, attacks, uses items).
 - **Resource System:** Gather/craft resources (wood, stone, berries, water, sword, potion).
 - **Alliances:** Dynamic alliance lines, betrayal, and elimination.
-- **API Orchestration:** Per-turn prompt construction, timeout/retry/fallback, concurrent requests, post-game interviews.
+- **API Orchestration:** Per-turn prompt construction, 6s timeout, concurrent requests, post-game interviews.
 - **UI/UX:**
   - Animated 15x15 grid with framer-motion.
   - Player status cards (HP, inventory, alive/dead).
   - Live event log, broadcast panel, elimination banners.
-  - Speed control (0.5x, 1x, 2x), round counter, results page.
+  - Speed control (1x, 2x), round counter, results page.
 - **State Management:** Zustand store for global game state.
 - **Landing Page:** Hero, rules, fighter showcase, API key input.
 
