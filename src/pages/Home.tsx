@@ -16,7 +16,7 @@ export default function Home() {
       return;
     }
     startGame();
-    navigate('/arena');
+    navigate('/play/battle-royale');
   };
 
   return (

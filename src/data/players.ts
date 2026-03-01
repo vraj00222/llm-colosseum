@@ -1,4 +1,4 @@
-import { PlayerConfig } from '../engine/types';
+import { PlayerConfig } from '../games/battle-royale/types';
 
 export const PLAYER_CONFIGS: PlayerConfig[] = [
   {

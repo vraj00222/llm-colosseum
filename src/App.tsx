@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Home from './pages/Home';
-import Arena from './pages/Arena';
-import Results from './pages/Results';
+import GameArena from './pages/GameArena';
+import GameResults from './pages/GameResults';
 
 export default function App() {
   return (
@@ -10,8 +10,11 @@ export default function App() {
       <AnimatePresence mode="wait">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/arena" element={<Arena />} />
-          <Route path="/results" element={<Results />} />
+          <Route path="/play/:gameId" element={<GameArena />} />
+          <Route path="/results/:gameId" element={<GameResults />} />
+          {/* Legacy routes redirect */}
+          <Route path="/arena" element={<Navigate to="/play/battle-royale" replace />} />
+          <Route path="/results" element={<Navigate to="/results/battle-royale" replace />} />
         </Routes>
       </AnimatePresence>
     </BrowserRouter>
