@@ -20,6 +20,8 @@ export default function GameArena() {
   const loopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isProcessingRef = useRef(false);
 
+  const activeGameId = (gameId || currentGameId) as GameId;
+  const isBattleRoyale = activeGameId === 'battle-royale';
   const aliveCount = players.filter(p => p.alive).length;
 
   // Set game from URL param
@@ -42,10 +44,11 @@ export default function GameArena() {
 
   useEffect(() => {
     if (phase === 'finished') {
-      const t = setTimeout(() => navigate(`/results/${gameId || currentGameId}`), 2500);
+      const delay = isBattleRoyale ? 2500 : 1500;
+      const t = setTimeout(() => navigate(`/results/${activeGameId}`), delay);
       return () => clearTimeout(t);
     }
-  }, [phase, navigate, gameId, currentGameId]);
+  }, [phase, navigate, activeGameId, isBattleRoyale]);
 
   const tick = useCallback(async () => {
     if (isProcessingRef.current) return;
@@ -55,22 +58,28 @@ export default function GameArena() {
 
   useEffect(() => {
     if (!isRunning || phase !== 'playing') return;
-    const delay = showElim ? 1200 : (400 / speed);
+    // Different speeds for different games
+    let baseDelay = 400;
+    if (activeGameId === 'connect-four') baseDelay = 1500; // slower for visual disc drops
+    if (activeGameId === 'debate') baseDelay = 2000; // slower for reading arguments
+
+    const delay = showElim ? 1200 : (baseDelay / speed);
     loopRef.current = setTimeout(() => { tick(); }, delay);
     return () => { if (loopRef.current) clearTimeout(loopRef.current); };
-  }, [isRunning, phase, speed, round, tick, showElim]);
+  }, [isRunning, phase, speed, round, tick, showElim, activeGameId]);
 
   if (!apiKey) { navigate('/'); return null; }
 
   // Get the game definition for rendering
-  let GameArenaContent: React.ComponentType<any>;
+  let game;
   try {
-    const game = getGame((gameId || currentGameId) as GameId);
-    GameArenaContent = game.ArenaComponent;
+    game = getGame(activeGameId);
   } catch {
     navigate('/');
     return null;
   }
+
+  const GameArenaContent = game.ArenaComponent;
 
   return (
     <motion.div
@@ -82,14 +91,16 @@ export default function GameArena() {
       <div className="flex items-center justify-between px-5 py-2.5 border-b border-arena-border/40 shrink-0 bg-arena-dark/60">
         <div className="flex items-center gap-5">
           <h1 className="font-pixel text-[11px] text-arena-accent tracking-wider">
-            {'\u{1F3DF}\u{FE0F}'} COLOSSEUM
+            {game.emoji} {game.name.toUpperCase()}
           </h1>
           <div className="flex items-center gap-1.5 bg-arena-panel/60 px-3 py-1 rounded-md border border-arena-border/30">
-            <span className="font-pixel text-[10px] text-white">RD {round}</span>
-            <span className="text-arena-border/60">|</span>
-            <span className="font-mono text-[10px] text-gray-400">{aliveCount} alive</span>
-            {currentGameId === 'battle-royale' && (
+            <span className="font-pixel text-[10px] text-white">
+              {activeGameId === 'connect-four' ? `MOVE ${round}` : `RD ${round}`}
+            </span>
+            {isBattleRoyale && (
               <>
+                <span className="text-arena-border/60">|</span>
+                <span className="font-mono text-[10px] text-gray-400">{aliveCount} alive</span>
                 <span className="text-arena-border/60">|</span>
                 <span className="font-mono text-[10px] text-arena-red">Zone: {zoneRadius}</span>
               </>
@@ -101,7 +112,7 @@ export default function GameArena() {
               animate={{ opacity: [1, 0.4, 1] }}
               transition={{ duration: 0.8, repeat: Infinity }}
             >
-              GAME OVER
+              {activeGameId === 'debate' ? 'DEBATE OVER' : 'GAME OVER'}
             </motion.span>
           )}
         </div>
@@ -111,8 +122,8 @@ export default function GameArena() {
       {/* Game-specific arena content */}
       <GameArenaContent gameState={useGame.getState().gameState} />
 
-      {/* Elimination banner overlay (battle royale) */}
-      {currentGameId === 'battle-royale' && (
+      {/* Elimination banner overlay (battle royale only) */}
+      {isBattleRoyale && (
         <EliminationBanner
           player={showElim ? elimPlayer : null}
           onDismiss={() => setShowElim(false)}

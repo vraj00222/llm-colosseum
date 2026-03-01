@@ -3,3 +3,5 @@ export type { GameDefinition, GameId, PlayerConfig, Standing, GamePhase, GameEve
 
 // Register all games
 import './battle-royale';
+import './connect-four';
+import './debate';
