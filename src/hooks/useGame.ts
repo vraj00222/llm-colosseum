@@ -46,6 +46,8 @@ interface GameStore {
 
 function extractBattleRoyaleState(gameState: unknown): Partial<GameStore> {
   const gs = gameState as GameState;
+  // Do NOT include phase/round — those are managed by the store and would
+  // overwrite the store's values (e.g. phase:'lobby' overwrites phase:'playing')
   return {
     players: gs.players,
     map: gs.map,
@@ -56,8 +58,6 @@ function extractBattleRoyaleState(gameState: unknown): Partial<GameStore> {
     itemDrops: gs.itemDrops,
     projectiles: gs.projectiles,
     zoneRadius: gs.zoneRadius,
-    round: gs.round,
-    phase: gs.phase,
   };
 }
 
