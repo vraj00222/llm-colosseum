@@ -71,15 +71,6 @@ function PixelCharacter({ color, emoji, facing, size, shield }: {
           borderRadius: '42% 42% 0 0',
         }} />
       </div>
-      {/* Emoji on body */}
-      <div style={{
-        position: 'absolute', bottom: s * 0.22, left: '50%', transform: 'translateX(-50%)',
-        width: bodyW, height: bodyH,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: bodyH * 0.6, lineHeight: 1,
-      }}>
-        {emoji}
-      </div>
       {/* Eyes */}
       <div style={{
         position: 'absolute', top: s * 0.16, left: '50%', transform: 'translateX(-50%)',

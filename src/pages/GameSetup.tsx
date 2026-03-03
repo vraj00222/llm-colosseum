@@ -84,10 +84,9 @@ export default function GameSetup() {
           className="font-mono text-xs text-gray-500 hover:text-gray-300 mb-6 block mx-auto"
           whileHover={{ x: -4 }}
         >
-          {'\u{2190}'} Back to games
+          &lt;- Back to games
         </motion.button>
 
-        <span className="text-5xl block mb-4">{game.emoji}</span>
         <h1 className="font-pixel text-2xl text-white mb-2">{game.name}</h1>
         <p className="font-mono text-sm text-gray-400">{game.tagline}</p>
       </div>
@@ -124,7 +123,7 @@ export default function GameSetup() {
         <div className="max-w-2xl mx-auto px-6 mb-8">
           <div className="bg-arena-panel border border-arena-border/50 rounded-xl p-5">
             <label className="font-pixel text-[10px] text-arena-accent block mb-3">
-              {'\u{1F4AC}'} DEBATE TOPIC
+              DEBATE TOPIC
             </label>
             <input
               type="text"
@@ -156,7 +155,7 @@ export default function GameSetup() {
       <div className="max-w-3xl mx-auto px-6 mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-pixel text-xs text-arena-gold">
-            {'\u{1F916}'} CHOOSE YOUR FIGHTERS
+            CHOOSE YOUR FIGHTERS
           </h2>
           <span className="font-mono text-[10px] text-gray-500">
             {selected.size}/{game.playerCount.max} selected
@@ -195,12 +194,12 @@ export default function GameSetup() {
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
                     >
-                      <span className="text-white text-[10px]">{'\u{2713}'}</span>
+                      <span className="text-white text-[10px] font-mono">+</span>
                     </motion.div>
                   )}
 
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{player.emoji}</span>
+                    <div className="w-7 h-7 rounded-full" style={{ backgroundColor: player.color, opacity: 0.8 }} />
                     <div className="min-w-0">
                       <h3
                         className="font-pixel text-[9px] truncate"
@@ -241,7 +240,7 @@ export default function GameSetup() {
           whileHover={canStart ? { scale: 1.05 } : {}}
           whileTap={canStart ? { scale: 0.95 } : {}}
         >
-          {game.emoji} START {game.name.toUpperCase()}
+          START {game.name.toUpperCase()}
         </motion.button>
       </div>
     </motion.div>

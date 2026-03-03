@@ -13,7 +13,7 @@ const debate: GameDefinition = {
   id: 'debate',
   name: 'Debate Arena',
   tagline: 'Two models argue a topic. A judge model scores each round. Pure entertainment.',
-  emoji: '\u{1F399}\u{FE0F}',
+  emoji: '',
   playerCount: { min: 2, max: 2 },
   estimatedDuration: '3 rounds',
   tags: ['debate', 'persuasion', 'drama'],

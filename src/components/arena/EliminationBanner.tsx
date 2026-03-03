@@ -30,16 +30,9 @@ export default function EliminationBanner({ player, onDismiss }: EliminationBann
             exit={{ scale: 0.5, opacity: 0, y: -20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           >
-            <motion.span
-              className="text-4xl block mb-1"
-              animate={{ rotate: [0, -10, 10, -10, 0] }}
-              transition={{ duration: 0.3 }}
-            >
-              {'\u{1F480}'}
-            </motion.span>
             <h2 className="font-pixel text-base text-red-500 mb-0.5">ELIMINATED</h2>
             <p className="font-pixel text-sm" style={{ color: player.color }}>
-              {player.emoji} {player.nickname}
+              {player.nickname}
             </p>
             {player.eliminatedBy && (
               <p className="font-mono text-xs text-gray-400 mt-0.5">by {player.eliminatedBy}</p>

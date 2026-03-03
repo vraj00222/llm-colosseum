@@ -28,7 +28,6 @@ export default function ConnectFourArena() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <span className="text-lg">{currentPlayer.emoji}</span>
                 <span className="font-pixel text-[10px]" style={{ color: currentPlayer.color }}>
                   {currentPlayer.nickname}'s TURN
                 </span>
@@ -45,7 +44,6 @@ export default function ConnectFourArena() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
               >
-                <span className="text-lg">{state.winner.emoji}</span>
                 <span className="font-pixel text-[10px] text-arena-gold">
                   {state.winner.nickname} WINS!
                 </span>
@@ -146,7 +144,7 @@ export default function ConnectFourArena() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{player.emoji}</span>
+              <div className="w-6 h-6 rounded-full" style={{ backgroundColor: player.color, opacity: 0.8 }} />
               <div>
                 <h3 className="font-pixel text-[10px]" style={{ color: player.color }}>
                   {player.nickname}
@@ -180,7 +178,6 @@ export default function ConnectFourArena() {
                   animate={{ opacity: 1, x: 0 }}
                 >
                   <span className="text-gray-600 w-5">{i + 1}.</span>
-                  <span>{p.emoji}</span>
                   <span style={{ color: p.color }}>{p.nickname}</span>
                   <span className="text-gray-500">col {move.col + 1}</span>
                 </motion.div>

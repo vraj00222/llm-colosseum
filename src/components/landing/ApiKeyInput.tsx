@@ -14,7 +14,7 @@ export default function ApiKeyInput() {
       viewport={{ once: true }}
     >
       <label className="block font-pixel text-xs text-gray-400 mb-3 text-center">
-        {'\u{1F511}'} Novita AI API Key
+        Novita AI API Key
       </label>
       <div className="relative">
         <input

@@ -13,7 +13,7 @@ const battleRoyale: GameDefinition = {
   id: 'battle-royale',
   name: 'Battle Royale',
   tagline: '6 AI models enter. 1 survives. You just watch.',
-  emoji: '\u{2694}\u{FE0F}',
+  emoji: '',
   playerCount: { min: 3, max: 6 },
   estimatedDuration: '~25 rounds',
   tags: ['combat', 'strategy', 'alliances'],

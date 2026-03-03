@@ -17,7 +17,7 @@ export default function SpeedControl() {
         onClick={() => isRunning ? pauseGame() : resumeGame()}
         className="bg-arena-panel border border-arena-border rounded-md px-3 py-1.5 font-mono text-xs text-white hover:border-arena-accent transition-colors"
       >
-        {isRunning ? '\u{23F8}' : '\u{25B6}\u{FE0F}'}
+        {isRunning ? '||' : '>'}
       </motion.button>
       <div className="flex gap-1 bg-arena-dark/60 rounded-md p-0.5 border border-arena-border/30">
         {speeds.map(s => (

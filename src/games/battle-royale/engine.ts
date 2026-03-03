@@ -112,7 +112,7 @@ export async function executeRound(
   if (newRound > 1 && newRound % ZONE_SHRINK_INTERVAL === 0 && state.zoneRadius > MIN_ZONE_RADIUS) {
     newEvents.unshift({
       round: newRound, playerId: 'system', playerNickname: 'System',
-      description: `\u{26A0}\u{FE0F} ZONE SHRINKING! Radius now ${newZoneRadius}!`,
+      description: `ZONE SHRINKING! Radius now ${newZoneRadius}!`,
       type: 'zone', timestamp: Date.now(),
     });
   }
@@ -130,7 +130,7 @@ export async function executeRound(
         p.hp = Math.max(0, p.hp - 5);
         newEvents.push({
           round: newRound, playerId: p.id, playerNickname: p.nickname,
-          description: `\u{23F0} ${p.nickname} is camping! Arena punishes idlers! (-5 HP)`,
+          description: `${p.nickname} is camping! Arena punishes idlers! (-5 HP)`,
           type: 'system', timestamp: Date.now(),
         });
       }
@@ -147,7 +147,7 @@ export async function executeRound(
         resolved.eliminations.push({ ...p });
         newEvents.push({
           round: newRound, playerId: p.id, playerNickname: p.nickname,
-          description: `\u{1F480} ${p.nickname} eliminated! (by ${p.eliminatedBy})`,
+          description: `${p.nickname} eliminated! (by ${p.eliminatedBy})`,
           type: 'elimination', timestamp: Date.now(),
         });
       }

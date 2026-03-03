@@ -20,18 +20,18 @@ const TYPE_COLORS: Record<GameEvent['type'], string> = {
   use: '#66bb6a',
 };
 
-const TYPE_ICONS: Partial<Record<GameEvent['type'], string>> = {
-  attack: '\u{2694}\u{FE0F}',
-  shoot: '\u{1F3F9}',
-  elimination: '\u{1F480}',
-  betray: '\u{1F5E1}\u{FE0F}',
-  ally: '\u{1F91D}',
-  gather: '\u{1F333}',
-  craft: '\u{1F528}',
-  zone: '\u{26A0}\u{FE0F}',
-  item: '\u{1F4E6}',
-  rest: '\u{1F4A4}',
-  use: '\u{2764}\u{FE0F}',
+const TYPE_LABELS: Partial<Record<GameEvent['type'], string>> = {
+  attack: 'ATK',
+  shoot: 'BOW',
+  elimination: 'KILL',
+  betray: 'BETRAY',
+  ally: 'ALLY',
+  gather: 'GATHER',
+  craft: 'CRAFT',
+  zone: 'ZONE',
+  item: 'ITEM',
+  rest: 'REST',
+  use: 'USE',
 };
 
 export default function EventLog() {
@@ -46,7 +46,7 @@ export default function EventLog() {
 
   return (
     <div className="bg-arena-panel/80 border border-arena-border rounded-lg p-2.5 flex flex-col h-full">
-      <h3 className="font-pixel text-[9px] text-arena-gold mb-2 px-1 shrink-0">{'\u{1F4DC}'} LOG</h3>
+      <h3 className="font-pixel text-[9px] text-arena-gold mb-2 px-1 shrink-0">LOG</h3>
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-0.5 min-h-0">
         <AnimatePresence initial={false}>
           {filtered.length === 0 ? (
@@ -62,7 +62,7 @@ export default function EventLog() {
                 style={{ fontSize: 10, color: TYPE_COLORS[ev.type] || '#888' }}
               >
                 <span className="text-gray-500 shrink-0" style={{ fontSize: 9 }}>R{ev.round}</span>
-                <span className="shrink-0" style={{ fontSize: 9 }}>{TYPE_ICONS[ev.type] || ''}</span>
+                <span className="shrink-0 font-pixel" style={{ fontSize: 7 }}>{TYPE_LABELS[ev.type] || ''}</span>
                 <span>{ev.description}</span>
               </motion.div>
             ))

@@ -22,13 +22,6 @@ export default function DebateResults() {
       >
         {state.winner ? (
           <>
-            <motion.span
-              className="text-6xl block mb-4"
-              animate={{ rotate: [0, -10, 10, -10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
-            >
-              {'\u{1F3C6}'}
-            </motion.span>
             <h1 className="font-pixel text-xl mb-2" style={{ color: state.winner.color }}>
               {state.winner.nickname} WINS THE DEBATE!
             </h1>
@@ -38,7 +31,6 @@ export default function DebateResults() {
           </>
         ) : (
           <>
-            <span className="text-6xl block mb-4">{'\u{1F91D}'}</span>
             <h1 className="font-pixel text-xl text-gray-400 mb-2">DEBATE DRAW!</h1>
             <p className="font-mono text-sm text-gray-500">
               Both models scored {state.totalScores[0]} points
@@ -70,13 +62,11 @@ export default function DebateResults() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className={`text-center p-3 rounded-lg ${score.forScore > score.againstScore ? 'bg-arena-accent/10 border border-arena-accent/20' : 'bg-arena-panel/40'}`}>
-                <span className="text-lg">{forPlayer.emoji}</span>
                 <p className="font-pixel text-[9px] mt-1" style={{ color: forPlayer.color }}>{forPlayer.nickname}</p>
                 <p className="font-pixel text-lg text-white mt-1">{score.forScore}</p>
                 <p className="font-mono text-[8px] text-green-400">FOR</p>
               </div>
               <div className={`text-center p-3 rounded-lg ${score.againstScore > score.forScore ? 'bg-arena-accent/10 border border-arena-accent/20' : 'bg-arena-panel/40'}`}>
-                <span className="text-lg">{againstPlayer.emoji}</span>
                 <p className="font-pixel text-[9px] mt-1" style={{ color: againstPlayer.color }}>{againstPlayer.nickname}</p>
                 <p className="font-pixel text-lg text-white mt-1">{score.againstScore}</p>
                 <p className="font-mono text-[8px] text-red-400">AGAINST</p>
@@ -91,12 +81,12 @@ export default function DebateResults() {
         <span className="font-pixel text-[9px] text-arena-gold block mb-3">FINAL SCORE</span>
         <div className="flex items-center justify-center gap-8">
           <div>
-            <span className="text-2xl">{forPlayer.emoji}</span>
+            <p className="font-pixel text-[9px]" style={{ color: forPlayer.color }}>{forPlayer.nickname}</p>
             <p className="font-pixel text-2xl text-white mt-2">{state.totalScores[0]}</p>
           </div>
           <span className="font-pixel text-sm text-gray-600">vs</span>
           <div>
-            <span className="text-2xl">{againstPlayer.emoji}</span>
+            <p className="font-pixel text-[9px]" style={{ color: againstPlayer.color }}>{againstPlayer.nickname}</p>
             <p className="font-pixel text-2xl text-white mt-2">{state.totalScores[1]}</p>
           </div>
         </div>

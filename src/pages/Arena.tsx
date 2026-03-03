@@ -67,7 +67,7 @@ export default function Arena() {
       <div className="flex items-center justify-between px-5 py-2.5 border-b border-arena-border/40 shrink-0 bg-arena-dark/60">
         <div className="flex items-center gap-5">
           <h1 className="font-pixel text-[11px] text-arena-accent tracking-wider">
-            {'\u{1F3DF}\u{FE0F}'} COLOSSEUM
+            COLOSSEUM
           </h1>
           <div className="flex items-center gap-1.5 bg-arena-panel/60 px-3 py-1 rounded-md border border-arena-border/30">
             <span className="font-pixel text-[10px] text-white">RD {round}</span>

@@ -91,7 +91,7 @@ export default function GameArena() {
       <div className="flex items-center justify-between px-5 py-2.5 border-b border-arena-border/40 shrink-0 bg-arena-dark/60">
         <div className="flex items-center gap-5">
           <h1 className="font-pixel text-[11px] text-arena-accent tracking-wider">
-            {game.emoji} {game.name.toUpperCase()}
+            {game.name.toUpperCase()}
           </h1>
           <div className="flex items-center gap-1.5 bg-arena-panel/60 px-3 py-1 rounded-md border border-arena-border/30">
             <span className="font-pixel text-[10px] text-white">

@@ -50,7 +50,7 @@ export default function Results() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          {'\u{1F504}'} RUN AGAIN
+          RUN AGAIN
         </motion.button>
 
         <motion.button
@@ -59,7 +59,7 @@ export default function Results() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          {'\u{1F3E0}'} HOME
+          HOME
         </motion.button>
       </div>
     </motion.div>

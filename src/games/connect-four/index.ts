@@ -13,7 +13,7 @@ const connectFour: GameDefinition = {
   id: 'connect-four',
   name: 'Connect Four',
   tagline: 'Two AI models drop discs. First to connect four wins.',
-  emoji: '\u{1F534}',
+  emoji: '',
   playerCount: { min: 2, max: 2 },
   estimatedDuration: '~15 moves',
   tags: ['classic', 'strategy', 'visual'],

@@ -94,21 +94,21 @@ export default function GameGrid() {
         />
       ))}
 
-      {/* Dead player skulls */}
+      {/* Dead player marker */}
       {players.filter(p => !p.alive && p.eliminatedRound === round).map(p => (
         <motion.div
           key={`dead-${p.id}`}
-          className="absolute pointer-events-none flex items-center justify-center"
+          className="absolute pointer-events-none flex items-center justify-center font-pixel text-red-500"
           style={{
             left: p.position.x * TILE_SIZE, top: p.position.y * TILE_SIZE,
-            width: TILE_SIZE, height: TILE_SIZE, fontSize: TILE_SIZE * 0.5,
+            width: TILE_SIZE, height: TILE_SIZE, fontSize: TILE_SIZE * 0.3,
             zIndex: 20,
           }}
           initial={{ scale: 2, opacity: 1 }}
           animate={{ scale: 1, opacity: 0, y: -20 }}
           transition={{ duration: 2 }}
         >
-          {'\u{1F480}'}
+          X
         </motion.div>
       ))}
 
@@ -138,8 +138,8 @@ export default function GameGrid() {
 
 function itemEmoji(type: string): string {
   const m: Record<string, string> = {
-    sword: '\u{2694}\u{FE0F}', bow: '\u{1F3F9}', shield: '\u{1F6E1}\u{FE0F}',
-    potion: '\u{1F9EA}', bomb: '\u{1F4A3}',
+    sword: 'S', bow: 'B', shield: 'D',
+    potion: 'P', bomb: 'X',
   };
   return m[type] || '?';
 }

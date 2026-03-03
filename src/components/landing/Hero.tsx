@@ -8,7 +8,6 @@ export default function Hero() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Background grid effect */}
       <div className="absolute inset-0 opacity-10">
         <div
           className="w-full h-full"
@@ -25,14 +24,6 @@ export default function Hero() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 100, delay: 0.2 }}
       >
-        <motion.span
-          className="text-6xl block mb-6"
-          animate={{ rotate: [0, -5, 5, -5, 0] }}
-          transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-        >
-          {'\u{1F3DF}\u{FE0F}'}
-        </motion.span>
-
         <h1 className="font-pixel text-4xl md:text-5xl text-white mb-4 leading-relaxed">
           <motion.span
             className="inline-block"
@@ -60,23 +51,6 @@ export default function Hero() {
         >
           "Release the Models"
         </motion.p>
-
-        <motion.div
-          className="mt-8 flex justify-center gap-3 text-3xl"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 1.2, type: 'spring' }}
-        >
-          {['\u{1F9E0}', '\u{2694}\u{FE0F}', '\u{1F432}', '\u{1F4AA}', '\u{1F300}', '\u{1F48E}'].map((emoji, i) => (
-            <motion.span
-              key={i}
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-            >
-              {emoji}
-            </motion.span>
-          ))}
-        </motion.div>
       </motion.div>
     </motion.div>
   );

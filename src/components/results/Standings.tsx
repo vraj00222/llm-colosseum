@@ -15,7 +15,7 @@ export default function Standings({ players, eliminationOrder }: StandingsProps)
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
       <h2 className="font-pixel text-lg text-arena-gold text-center mb-6">
-        {'\u{1F4CA}'} FINAL STANDINGS
+        FINAL STANDINGS
       </h2>
 
       <div className="space-y-2">
@@ -30,9 +30,9 @@ export default function Standings({ players, eliminationOrder }: StandingsProps)
             }`}
           >
             <span className="font-pixel text-lg text-gray-500 w-8">
-              {i === 0 ? '\u{1F451}' : `#${i + 1}`}
+              #{i + 1}
             </span>
-            <span className="text-2xl">{player.emoji}</span>
+            <div className="w-6 h-6 rounded-full" style={{ backgroundColor: player.color, opacity: 0.8 }} />
             <div className="flex-1">
               <p className="font-pixel text-xs" style={{ color: player.color }}>
                 {player.nickname}

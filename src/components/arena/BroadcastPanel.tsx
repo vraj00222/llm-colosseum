@@ -14,7 +14,7 @@ export default function BroadcastPanel() {
 
   return (
     <div className="bg-arena-panel/80 border border-arena-border rounded-lg p-2.5 flex flex-col h-full">
-      <h3 className="font-pixel text-[9px] text-arena-gold mb-2 px-1 shrink-0">{'\u{1F4AC}'} CHAT</h3>
+      <h3 className="font-pixel text-[9px] text-arena-gold mb-2 px-1 shrink-0">CHAT</h3>
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-1 min-h-0">
         <AnimatePresence initial={false}>
           {recent.length === 0 ? (
@@ -27,7 +27,6 @@ export default function BroadcastPanel() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex gap-1.5 items-start leading-tight"
               >
-                <span style={{ fontSize: 12 }}>{b.playerEmoji}</span>
                 <div className="min-w-0 flex-1">
                   <span className="font-pixel" style={{ fontSize: 7, color: b.playerColor }}>
                     {b.playerNickname.replace('The ', '')}

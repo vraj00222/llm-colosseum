@@ -52,7 +52,7 @@ export default function PostGameInterview({ players, winner, apiKey }: PostGameI
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
       <h2 className="font-pixel text-lg text-arena-gold text-center mb-6">
-        {'\u{1F480}'} POST-GAME INTERVIEWS
+        POST-GAME INTERVIEWS
       </h2>
 
       {loading && (
@@ -82,13 +82,13 @@ export default function PostGameInterview({ players, winner, apiKey }: PostGameI
                 "{quote}"
               </p>
               <div className="flex items-center gap-2">
-                <span className="text-xl">{player.emoji}</span>
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: player.color }} />
                 <span className="font-pixel text-xs" style={{ color: player.color }}>
-                  {'\u{2014}'} {player.nickname}
+                  -- {player.nickname}
                 </span>
                 {player.alive && (
                   <span className="font-mono text-xs text-arena-gold ml-2">
-                    {'\u{1F451}'} Champion
+                    Champion
                   </span>
                 )}
               </div>

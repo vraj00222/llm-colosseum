@@ -278,10 +278,10 @@ export function resolveActions(
         if (ta?.type === 'ALLY' && findTarget((ta as any).target, [p.nickname])) {
           if (!t.alliances.includes(p.nickname)) t.alliances.push(p.nickname);
           events.push({ round, playerId: pid, playerNickname: p.nickname,
-            description: `\u{1F91D} ${p.nickname} and ${t.nickname} allied!`, type: 'ally', timestamp: ts });
+            description: `${p.nickname} and ${t.nickname} allied!`, type: 'ally', timestamp: ts });
         } else {
           events.push({ round, playerId: pid, playerNickname: p.nickname,
-            description: `${p.emoji} ${p.nickname} wants to ally ${t.nickname}`, type: 'ally', timestamp: ts });
+            description: `${p.nickname} wants to ally ${t.nickname}`, type: 'ally', timestamp: ts });
         }
         p.lastAction = `ALLY ${t.nickname}`;
       }
@@ -297,12 +297,12 @@ export function resolveActions(
         t.hp = Math.max(0, t.hp - dmg);
         p.lastAction = `BETRAY ${t.nickname}`;
         events.push({ round, playerId: pid, playerNickname: p.nickname,
-          description: `\u{1F5E1}\u{FE0F} ${p.nickname} BETRAYED ${t.nickname}! (${dmg} dmg)`, type: 'betray', timestamp: ts });
+          description: `${p.nickname} BETRAYED ${t.nickname}! (${dmg} dmg)`, type: 'betray', timestamp: ts });
         if (t.hp <= 0) {
           t.alive = false; t.eliminatedRound = round; t.eliminatedBy = p.nickname; p.kills++;
           eliminations.push({ ...t });
           events.push({ round, playerId: t.id, playerNickname: t.nickname,
-            description: `\u{1F480} ${t.nickname} BACKSTABBED by ${p.nickname}!`, type: 'elimination', timestamp: ts });
+            description: `${t.nickname} BACKSTABBED by ${p.nickname}!`, type: 'elimination', timestamp: ts });
         }
       }
     }
@@ -344,7 +344,7 @@ export function resolveActions(
       drops = drops.filter((_, idx) => idx !== ii);
       if (item.type === 'shield') p.shield = true;
       events.push({ round, playerId: pid, playerNickname: p.nickname,
-        description: `${p.emoji} ${p.nickname} picked up ${item.type}!`, type: 'item', timestamp: ts });
+        description: `${p.nickname} picked up ${item.type}!`, type: 'item', timestamp: ts });
     }
   }
 
@@ -361,7 +361,7 @@ export function resolveActions(
       p.hp = Math.max(0, p.hp - clashDmg);
       t.hp = Math.max(0, t.hp - clashDmg);
       events.push({ round, playerId: p.id, playerNickname: p.nickname,
-        description: `\u{26A1} ${p.nickname} and ${t.nickname} clash! (${clashDmg} dmg each)`, type: 'attack', timestamp: ts });
+        description: `${p.nickname} and ${t.nickname} clash! (${clashDmg} dmg each)`, type: 'attack', timestamp: ts });
     }
   }
 
@@ -379,26 +379,26 @@ export function resolveActions(
           p.inventory.push(res);
           p.lastAction = `GATHER ${res}`;
           events.push({ round, playerId: pid, playerNickname: p.nickname,
-            description: `${p.emoji} ${p.nickname} gathered ${res}`, type: 'gather', timestamp: ts });
+            description: `${p.nickname} gathered ${res}`, type: 'gather', timestamp: ts });
         }
       }
     }
 
     if (action.type === 'CRAFT') {
       const inv = p.inventory;
-      const recipes: Record<string, [string[], string]> = {
-        sword: [['wood', 'stone'], '\u{2694}\u{FE0F}'],
-        bow: [['wood', 'wood'], '\u{1F3F9}'],
-        potion: [['berries', 'water'], '\u{1F9EA}'],
-        bomb: [['stone', 'stone'], '\u{1F4A3}'],
+      const recipes: Record<string, string[]> = {
+        sword: ['wood', 'stone'],
+        bow: ['wood', 'wood'],
+        potion: ['berries', 'water'],
+        bomb: ['stone', 'stone'],
       };
       const recipe = recipes[action.item];
-      if (recipe && recipe[0].every(r => inv.includes(r))) {
-        removeItems(inv, recipe[0]);
+      if (recipe && recipe.every(r => inv.includes(r))) {
+        removeItems(inv, recipe);
         inv.push(action.item);
         p.lastAction = `CRAFT ${action.item}`;
         events.push({ round, playerId: pid, playerNickname: p.nickname,
-          description: `${recipe[1]} ${p.nickname} crafted ${action.item}!`, type: 'craft', timestamp: ts });
+          description: `${p.nickname} crafted ${action.item}!`, type: 'craft', timestamp: ts });
       }
     }
 
@@ -408,7 +408,7 @@ export function resolveActions(
         p.hp = Math.min(p.maxHp, p.hp + 30);
         p.lastAction = 'USE potion';
         events.push({ round, playerId: pid, playerNickname: p.nickname,
-          description: `\u{2764}\u{FE0F} ${p.nickname} drank a potion! (+30 HP)`, type: 'use', timestamp: ts });
+          description: `${p.nickname} drank a potion! (+30 HP)`, type: 'use', timestamp: ts });
       }
       if (action.item === 'bomb' && p.inventory.includes('bomb')) {
         removeItems(p.inventory, ['bomb']);
@@ -421,7 +421,7 @@ export function resolveActions(
             t.hp = Math.max(0, t.hp - dmg);
             t.stunned = true;
             events.push({ round, playerId: pid, playerNickname: p.nickname,
-              description: `\u{1F4A5} ${p.nickname}'s bomb hit ${t.nickname}! (${dmg} dmg + stun)`, type: 'attack', timestamp: ts });
+              description: `${p.nickname}'s bomb hit ${t.nickname}! (${dmg} dmg + stun)`, type: 'attack', timestamp: ts });
           }
         }
       }
@@ -433,7 +433,7 @@ export function resolveActions(
         p.hp = Math.min(p.maxHp, p.hp + 8);
         p.lastAction = 'REST';
         events.push({ round, playerId: pid, playerNickname: p.nickname,
-          description: `\u{1F4A4} ${p.nickname} rested (+8 HP)`, type: 'rest', timestamp: ts });
+          description: `${p.nickname} rested (+8 HP)`, type: 'rest', timestamp: ts });
       }
     }
   }
@@ -461,7 +461,7 @@ export function resolveActions(
         target.hp = Math.max(0, target.hp - dmg);
         hit = true;
         events.push({ round, playerId: pid, playerNickname: p.nickname,
-          description: `\u{1F3F9} ${p.nickname} shot ${target.nickname}! (${dmg} dmg)`, type: 'shoot', timestamp: ts });
+          description: `${p.nickname} shot ${target.nickname}! (${dmg} dmg)`, type: 'shoot', timestamp: ts });
         p.lastAction = `SHOOT ${target.nickname}`;
         break;
       }
@@ -482,7 +482,7 @@ export function resolveActions(
     t.hp = Math.max(0, t.hp - dmg);
     p.lastAction = `ATTACK ${t.nickname} (${dmg} dmg)`;
     events.push({ round, playerId: pid, playerNickname: p.nickname,
-      description: `\u{2694}\u{FE0F} ${p.nickname} attacked ${t.nickname} for ${dmg} damage!`, type: 'attack', timestamp: ts });
+      description: `${p.nickname} attacked ${t.nickname} for ${dmg} damage!`, type: 'attack', timestamp: ts });
   }
 
   // ═══ Phase 7: Zone damage — MORE PUNISHING ═══
@@ -492,7 +492,7 @@ export function resolveActions(
     if (dmg > 0) {
       p.hp = Math.max(0, p.hp - dmg);
       events.push({ round, playerId: p.id, playerNickname: p.nickname,
-        description: `\u{1F525} ${p.nickname} takes ${dmg} zone damage!`, type: 'zone', timestamp: ts });
+        description: `${p.nickname} takes ${dmg} zone damage!`, type: 'zone', timestamp: ts });
     }
   }
 
@@ -512,7 +512,7 @@ export function resolveActions(
       if (!eliminations.find(e => e.id === p.id)) {
         eliminations.push({ ...p });
         events.push({ round, playerId: p.id, playerNickname: p.nickname,
-          description: `\u{1F480} ${p.nickname} eliminated! (by ${p.eliminatedBy})`, type: 'elimination', timestamp: ts });
+          description: `${p.nickname} eliminated! (by ${p.eliminatedBy})`, type: 'elimination', timestamp: ts });
       }
     }
     if (p.alive) p.roundsSurvived = round;

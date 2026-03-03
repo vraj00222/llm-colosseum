@@ -56,7 +56,7 @@ export default function GameSelector() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
       >
-        {'\u{1F3AE}'} CHOOSE YOUR GAME
+        CHOOSE YOUR GAME
       </motion.h2>
       <motion.p
         className="font-mono text-sm text-gray-500 text-center mb-10"
@@ -86,22 +86,18 @@ export default function GameSelector() {
             onClick={() => handleSelect(game.id)}
             className="bg-arena-dark border border-arena-border rounded-xl p-6 cursor-pointer relative overflow-hidden group"
           >
-            {/* Hover glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-arena-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
             <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-3xl">{game.emoji}</span>
-                <div>
-                  <h3 className="font-pixel text-xs text-white">{game.name}</h3>
-                  <p className="font-mono text-[10px] text-gray-500">
-                    {game.playerCount.min === game.playerCount.max
-                      ? `${game.playerCount.min} players`
-                      : `${game.playerCount.min}-${game.playerCount.max} players`}
-                    {' \u{00B7} '}
-                    {game.estimatedDuration}
-                  </p>
-                </div>
+              <div className="mb-3">
+                <h3 className="font-pixel text-xs text-white">{game.name}</h3>
+                <p className="font-mono text-[10px] text-gray-500">
+                  {game.playerCount.min === game.playerCount.max
+                    ? `${game.playerCount.min} players`
+                    : `${game.playerCount.min}-${game.playerCount.max} players`}
+                  {' / '}
+                  {game.estimatedDuration}
+                </p>
               </div>
 
               <p className="font-mono text-xs text-gray-400 leading-relaxed mb-4">

@@ -13,14 +13,6 @@ export default function Champion({ winner }: ChampionProps) {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: 'spring', stiffness: 100, delay: 0.3 }}
     >
-      <motion.span
-        className="text-7xl block mb-6"
-        animate={{ rotate: [0, -5, 5, -5, 0], y: [0, -10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        {'\u{1F3C6}'}
-      </motion.span>
-
       <h1 className="font-pixel text-3xl text-arena-gold mb-2">CHAMPION</h1>
 
       <motion.div
@@ -30,7 +22,7 @@ export default function Champion({ winner }: ChampionProps) {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.6 }}
       >
-        <span className="text-6xl block mb-4">{winner.emoji}</span>
+        <div className="w-16 h-16 rounded-full mx-auto mb-4" style={{ backgroundColor: winner.color, opacity: 0.8 }} />
         <h2 className="font-pixel text-xl mb-1" style={{ color: winner.color }}>
           {winner.nickname}
         </h2>

@@ -20,13 +20,6 @@ export default function ConnectFourResults() {
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 100 }}
         >
-          <motion.span
-            className="text-7xl block mb-4"
-            animate={{ rotate: [0, -10, 10, -10, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
-          >
-            {'\u{1F3C6}'}
-          </motion.span>
           <h1 className="font-pixel text-2xl mb-2" style={{ color: winner.color }}>
             {winner.nickname} WINS!
           </h1>
@@ -40,7 +33,6 @@ export default function ConnectFourResults() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <span className="text-7xl block mb-4">{'\u{1F91D}'}</span>
           <h1 className="font-pixel text-2xl text-gray-400 mb-2">DRAW!</h1>
           <p className="font-mono text-sm text-gray-500">
             Board full after {state.round} moves. Neither model could win.
@@ -58,14 +50,14 @@ export default function ConnectFourResults() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.2 }}
           >
-            <span className="text-4xl block mb-3">{player.emoji}</span>
+            <div className="w-10 h-10 rounded-full mx-auto mb-3" style={{ backgroundColor: player.color, opacity: 0.8 }} />
             <h3 className="font-pixel text-xs mb-1" style={{ color: player.color }}>
               {player.nickname}
             </h3>
             <p className="font-mono text-[10px] text-gray-500 mb-3">{player.name}</p>
             <div className="font-pixel text-lg">
               {winner?.id === player.id ? (
-                <span className="text-arena-gold">{'\u{1F451}'} WINNER</span>
+                <span className="text-arena-gold">WINNER</span>
               ) : state.isDraw ? (
                 <span className="text-gray-400">DRAW</span>
               ) : (

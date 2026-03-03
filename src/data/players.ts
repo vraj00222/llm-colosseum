@@ -8,7 +8,7 @@ export const PLAYER_CONFIGS: PlayerConfig[] = [
     nickname: "The Strategist",
     params: "685B",
     color: "#4A90D9",
-    emoji: "\u{1F9E0}",
+    emoji: "",
     description: "Overthinks every move. Forms complex strategies that somehow work."
   },
   {
@@ -18,7 +18,7 @@ export const PLAYER_CONFIGS: PlayerConfig[] = [
     nickname: "The Shadow",
     params: "397B",
     color: "#00B894",
-    emoji: "\u{1F432}",
+    emoji: "",
     description: "Quiet, calculating, strikes when you least expect."
   },
   {
@@ -28,7 +28,7 @@ export const PLAYER_CONFIGS: PlayerConfig[] = [
     nickname: "The Diplomat",
     params: "~1T",
     color: "#6C5CE7",
-    emoji: "\u{1F3AD}",
+    emoji: "",
     description: "Smooth talker. Will betray you with a smile."
   },
   {
@@ -38,7 +38,7 @@ export const PLAYER_CONFIGS: PlayerConfig[] = [
     nickname: "The Brawler",
     params: "Large",
     color: "#E85D3A",
-    emoji: "\u{1F4AA}",
+    emoji: "",
     description: "Fast, aggressive, zero hesitation. Punches first, thinks never."
   },
   {
@@ -48,7 +48,7 @@ export const PLAYER_CONFIGS: PlayerConfig[] = [
     nickname: "The Wildcard",
     params: "Large",
     color: "#FDCB6E",
-    emoji: "\u{1F300}",
+    emoji: "",
     description: "Nobody knows what it'll do next. Including itself."
   },
   {
@@ -58,7 +58,7 @@ export const PLAYER_CONFIGS: PlayerConfig[] = [
     nickname: "The Underdog",
     params: "480B",
     color: "#E17055",
-    emoji: "\u{1F48E}",
+    emoji: "",
     description: "A code model thrown into combat. Heart of a champion."
   },
 ];

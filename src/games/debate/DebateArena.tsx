@@ -37,7 +37,7 @@ export default function DebateArena() {
       {/* Score bar */}
       <div className="flex items-center gap-3 px-2">
         <span className="font-pixel text-[9px]" style={{ color: forPlayer.color }}>
-          {forPlayer.emoji} {state.totalScores[0]}
+          {state.totalScores[0]}
         </span>
         <div className="flex-1 h-3 bg-arena-dark rounded-full overflow-hidden flex">
           {state.totalScores[0] + state.totalScores[1] > 0 && (
@@ -62,7 +62,7 @@ export default function DebateArena() {
           )}
         </div>
         <span className="font-pixel text-[9px]" style={{ color: againstPlayer.color }}>
-          {state.totalScores[1]} {againstPlayer.emoji}
+          {state.totalScores[1]}
         </span>
       </div>
 
@@ -71,7 +71,6 @@ export default function DebateArena() {
         {/* FOR side */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex items-center gap-2 mb-3 px-2">
-            <span className="text-xl">{forPlayer.emoji}</span>
             <div>
               <h3 className="font-pixel text-[9px]" style={{ color: forPlayer.color }}>{forPlayer.nickname}</h3>
               <span className="font-mono text-[8px] text-green-400">FOR</span>
@@ -117,7 +116,6 @@ export default function DebateArena() {
               <h3 className="font-pixel text-[9px]" style={{ color: againstPlayer.color }}>{againstPlayer.nickname}</h3>
               <span className="font-mono text-[8px] text-red-400">AGAINST</span>
             </div>
-            <span className="text-xl">{againstPlayer.emoji}</span>
           </div>
           <div className="flex-1 overflow-y-auto space-y-3 px-1">
             <AnimatePresence>
@@ -147,7 +145,7 @@ export default function DebateArena() {
       {/* Judge reasoning */}
       {state.scores.length > 0 && (
         <div className="bg-arena-dark/60 border border-arena-border/20 rounded-lg p-3">
-          <span className="font-pixel text-[8px] text-arena-gold block mb-1">{'\u{2696}\u{FE0F}'} JUDGE</span>
+          <span className="font-pixel text-[8px] text-arena-gold block mb-1">JUDGE</span>
           <p className="font-mono text-[10px] text-gray-400">
             {state.scores[state.scores.length - 1].reasoning}
           </p>

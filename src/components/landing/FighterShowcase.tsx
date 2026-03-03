@@ -27,7 +27,7 @@ export default function FighterShowcase() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
       >
-        {'\u{1F465}'} MEET THE FIGHTERS
+        MEET THE FIGHTERS
       </motion.h2>
 
       <motion.div
@@ -47,28 +47,23 @@ export default function FighterShowcase() {
             }}
             className="bg-arena-dark border border-arena-border rounded-xl p-6 relative overflow-hidden"
           >
-            {/* Color accent bar */}
             <div
               className="absolute top-0 left-0 right-0 h-1"
               style={{ backgroundColor: player.color }}
             />
 
-            <div className="flex items-start gap-4">
-              <span className="text-4xl">{player.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-pixel text-xs mb-1" style={{ color: player.color }}>
-                  {player.nickname}
-                </h3>
-                <p className="font-mono text-xs text-gray-500 mb-2">
-                  {player.name} &middot; {player.params}
-                </p>
-                <p className="font-mono text-xs text-gray-400 leading-relaxed">
-                  {player.description}
-                </p>
-              </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-pixel text-xs mb-1" style={{ color: player.color }}>
+                {player.nickname}
+              </h3>
+              <p className="font-mono text-xs text-gray-500 mb-2">
+                {player.name} &middot; {player.params}
+              </p>
+              <p className="font-mono text-xs text-gray-400 leading-relaxed">
+                {player.description}
+              </p>
             </div>
 
-            {/* HP preview bar */}
             <div className="mt-4 bg-arena-bg rounded-full h-2 overflow-hidden">
               <motion.div
                 className="h-full rounded-full"

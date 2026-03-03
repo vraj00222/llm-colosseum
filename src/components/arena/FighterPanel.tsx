@@ -11,7 +11,7 @@ export default function FighterPanel() {
 
   return (
     <div className="bg-arena-panel/80 border border-arena-border rounded-lg p-2.5 flex flex-col h-full">
-      <h3 className="font-pixel text-[9px] text-arena-gold mb-2 px-1 shrink-0">{'\u{2694}\u{FE0F}'} FIGHTERS</h3>
+      <h3 className="font-pixel text-[9px] text-arena-gold mb-2 px-1 shrink-0">FIGHTERS</h3>
       <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
         <AnimatePresence>
           {sorted.map(p => (
@@ -22,7 +22,10 @@ export default function FighterPanel() {
               className="bg-arena-dark/60 rounded-md px-2.5 py-2 border border-arena-border/40"
             >
               <div className="flex items-center gap-2">
-                <span className="text-base">{p.alive ? p.emoji : '\u{1F480}'}</span>
+                <div
+                  className="w-3 h-3 rounded-full shrink-0"
+                  style={{ backgroundColor: p.alive ? p.color : '#555' }}
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <span className="font-pixel truncate" style={{ fontSize: 8, color: p.alive ? p.color : '#555' }}>
@@ -63,7 +66,7 @@ export default function FighterPanel() {
               {p.alive && p.alliances.length > 0 && (
                 <div className="mt-1">
                   <span className="font-mono text-arena-green/70" style={{ fontSize: 8 }}>
-                    {'\u{1F91D}'} {p.alliances.join(', ')}
+                    allies: {p.alliances.join(', ')}
                   </span>
                 </div>
               )}
